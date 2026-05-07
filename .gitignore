@@ -1,0 +1,18 @@
+node_modules/
+.env
+.env.*
+!.env.example
+
+# Next.js
+frontend/.next/
+frontend/out/
+frontend/.vercel/
+
+# Express uploads
+backend/uploads/
+*.log
+
+# OS
+Thumbs.db
+.DS_Store
+
