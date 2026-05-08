@@ -46,6 +46,6 @@ export const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/gif"];
 export const MAX_FILE_SIZE_MB   = 10;
 export const MAX_FILE_SIZE      = MAX_FILE_SIZE_MB * 1024 * 1024;
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.example.com";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export const POLLING_INTERVAL = 30000; 
