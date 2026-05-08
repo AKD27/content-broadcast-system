@@ -1,0 +1,160 @@
+========================================================
+EduBroadcast – Content Broadcasting System
+Frontend Technical Notes
+========================================================
+
+1. PROJECT STRUCTURE
+--------------------
+src/
+├── app/                        # Next.js App Router pages
+│   ├── layout.jsx              # Root layout (AuthProvider + Toaster)
+│   ├── page.jsx                # Root redirect based on role
+│   ├── login/page.jsx          # Login page
+│   ├── teacher/
+│   │   ├── dashboard/page.jsx  # Teacher dashboard with stats
+│   │   ├── upload/page.jsx     # Content upload form
+│   │   └── my-content/page.jsx # Teacher's submitted content
+│   ├── principal/
+│   │   ├── dashboard/page.jsx  # Principal dashboard with stats
+│   │   ├── approvals/page.jsx  # Pending approvals + reject modal
+│   │   └── content/page.jsx    # All content with search/filter
+│   └── live/[teacherId]/page.jsx  # Public live broadcast page
+│
+├── components/
+│   ├── ui/                     # Generic, reusable UI primitives
+│   │   ├── Button.jsx          # Variant-based button
+│   │   ├── Input.jsx           # Controlled input with label/error
+│   │   ├── Select.jsx          # Dropdown select
+│   │   ├── Textarea.jsx        # Multiline input
+│   │   ├── Badge.jsx           # Status badge with color mapping
+│   │   ├── Card.jsx            # Card with Header/Body/Footer
+│   │   ├── Modal.jsx           # Accessible overlay modal
+│   │   ├── Skeleton.jsx        # Loading skeleton variants
+│   │   ├── EmptyState.jsx      # Empty/no-data state UI
+│   │   └── StatCard.jsx        # Dashboard stat card
+│   ├── layout/
+│   │   ├── Sidebar.jsx         # Role-aware nav sidebar
+│   │   ├── DashboardLayout.jsx # Page wrapper with sidebar
+│   │   └── ProtectedRoute.jsx  # Auth + role guard HOC
+│   └── shared/
+│       ├── ContentCard.jsx     # Content item card (used everywhere)
+│       └── FileUpload.jsx      # Drag-and-drop image uploader
+│
+├── services/                   # API service layer
+│   ├── auth.service.js         # login(), logout(), getCurrentUser()
+│   ├── content.service.js      # CRUD for content items
+│   └── approval.service.js     # Approve/reject operations
+│
+├── hooks/
+│   ├── useAsync.js             # Generic data-fetch + mutation hooks
+│   ├── useDebounce.js          # Input debounce hook
+│   └── usePolling.js           # Interval-based polling hook
+│
+├── context/
+│   └── AuthContext.jsx         # Auth state + login/logout methods
+│
+├── lib/
+│   ├── apiClient.js            # Axios instance with interceptors
+│   └── mockData.js             # Mock users and content for demo
+│
+└── utils/
+    ├── constants.js            # ROLES, ROUTES, SUBJECTS, etc.
+    ├── helpers.js              # cn(), formatDate(), validateFile()
+    └── validations.js          # Zod schemas for all forms
+
+
+2. AUTHENTICATION FLOW
+-----------------------
+- User submits email/password on /login
+- auth.service.login() validates against mock users (or real backend)
+- On success: token + user object stored in localStorage
+- AuthContext reads localStorage on mount and rehydrates state
+- Role-based redirect: teacher → /teacher/dashboard, principal → /principal/dashboard
+- Axios interceptor automatically attaches Bearer token to all API requests
+- On 401 response: session cleared and user redirected to /login
+- ProtectedRoute component guards all authenticated pages
+
+
+3. ROLE-BASED ROUTING
+----------------------
+Teacher has access to:
+  /teacher/dashboard
+  /teacher/upload
+  /teacher/my-content
+
+Principal has access to:
+  /principal/dashboard
+  /principal/approvals
+  /principal/content
+
+Public (no auth required):
+  /live/:teacherId
+
+ProtectedRoute reads useAuth().user.role and redirects unauthorized users
+to their own dashboard. Unauthenticated users are always sent to /login.
+
+
+4. API INTEGRATION APPROACH
+-----------------------------
+All API calls are isolated in the service layer (src/services/).
+Components NEVER call APIs directly.
+
+Pattern:
+  Component → useAsync(serviceFn) → service → apiClient → Backend
+
+For mock mode (current):
+  - service functions simulate delay and return in-memory data
+  - contentStore is an in-memory array that mutates on upload/approve/reject
+
+For real backend (when ready):
+  - Each service file has commented-out "Real backend replacement" sections
+  - Simply uncomment the apiClient lines and remove the mock logic
+  - apiClient.js handles base URL, auth headers, and error normalization
+
+Service files:
+  auth.service.js     → login, logout, getCurrentUser, getToken
+  content.service.js  → getAllContent, getContentByTeacher, getLiveContent,
+                         getTeacherStats, getPrincipalStats, uploadContent
+  approval.service.js → getPendingContent, approveContent, rejectContent
+
+
+5. STATE MANAGEMENT APPROACH
+------------------------------
+State is kept minimal and local-first:
+- AuthContext (React Context): global auth state only
+- useAsync hook: wraps async calls with { data, loading, error, refetch }
+- useMutation hook: wraps actions with { mutate, loading, error }
+- Form state: managed entirely by react-hook-form
+- Filter/search state: local useState in the component that owns it
+- No Redux or Zustand needed for this scope
+
+This keeps components clean and avoids prop drilling.
+
+
+6. ASSUMPTIONS
+---------------
+- Images only (JPG, PNG, GIF) are accepted as file uploads (no video/PDF)
+- Mock login works with any password ≥ 6 chars for the demo email addresses
+- In mock mode, content store is in-memory and resets on page reload
+- Scheduling status (scheduled/active/expired) is computed client-side from timestamps
+- The live page (/live/:teacherId) is public and requires no authentication
+- teacherId in the live URL must match a real user ID (use "user-1" for demo)
+- Rotation duration is stored but actual carousel rotation is out of scope
+
+
+7. PERFORMANCE NOTES
+---------------------
+- Skeleton loaders shown during all async operations
+- Images use lazy loading via loading="lazy"
+- Search input is debounced (400ms) to avoid excessive API calls
+- useAsync and useMutation use useCallback to prevent unnecessary re-renders
+- Components are split small to maximize React's reconciliation efficiency
+- SkeletonCard, SkeletonStatCard, SkeletonTable variants for different contexts
+
+
+8. DEMO LOGIN CREDENTIALS
+--------------------------
+Teacher:   teacher@school.com   / password123  (or any password ≥ 6 chars)
+Principal: principal@school.com / password123  (or any password ≥ 6 chars)
+
+Demo live page: /live/user-1

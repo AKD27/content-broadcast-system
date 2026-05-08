@@ -1,0 +1,107 @@
+
+export const MOCK_USERS = [
+  {
+    id: "user-1",
+    name:  "Rahul Sharma",
+    email: "teacher@school.com",
+    role:  "teacher",
+    token: "mock-teacher-token-xyz",
+  },
+  {
+    id: "user-2",
+    name:  "Dr. Priya Mehra",
+    email: "principal@school.com",
+    role:  "principal",
+    token: "mock-principal-token-abc",
+  },
+];
+
+const now = new Date();
+const hour = (h) => new Date(now.getTime() + h * 3600000).toISOString();
+
+export const MOCK_CONTENT = [
+  {
+    id:               "c1",
+    title:            "Quadratic Equations Explained",
+    subject:          "Mathematics",
+    description:      "A comprehensive visual guide to solving quadratic equations.",
+    fileUrl:          "https://picsum.photos/seed/math/800/600",
+    fileType:         "image/jpeg",
+    status:           "approved",
+    startTime:        hour(-1),
+    endTime:          hour(2),
+    rotationDuration: 30,
+    teacherId:        "user-1",
+    teacherName:      "Rahul Sharma",
+    rejectionReason:  null,
+    createdAt:        hour(-5),
+  },
+  {
+    id:               "c2",
+    title:            "Photosynthesis Process",
+    subject:          "Biology",
+    description:      "How plants convert sunlight into energy.",
+    fileUrl:          "https://picsum.photos/seed/bio/800/600",
+    fileType:         "image/jpeg",
+    status:           "pending",
+    startTime:        hour(1),
+    endTime:          hour(3),
+    rotationDuration: 15,
+    teacherId:        "user-1",
+    teacherName:      "Rahul Sharma",
+    rejectionReason:  null,
+    createdAt:        hour(-2),
+  },
+  {
+    id:               "c3",
+    title:            "World War II Timeline",
+    subject:          "History",
+    description:      "Key events and dates from WWII.",
+    fileUrl:          "https://picsum.photos/seed/hist/800/600",
+    fileType:         "image/jpeg",
+    status:           "rejected",
+    startTime:        hour(-10),
+    endTime:          hour(-5),
+    rotationDuration: 20,
+    teacherId:        "user-1",
+    teacherName:      "Rahul Sharma",
+    rejectionReason:  "Image resolution is too low. Please upload a higher quality version.",
+    createdAt:        hour(-24),
+  },
+  {
+    id:               "c4",
+    title:            "Newton's Laws of Motion",
+    subject:          "Physics",
+    description:      "Interactive diagram of all three Newton's laws.",
+    fileUrl:          "https://picsum.photos/seed/phys/800/600",
+    fileType:         "image/jpeg",
+    status:           "approved",
+    startTime:        hour(-3),
+    endTime:          hour(5),
+    rotationDuration: 45,
+    teacherId:        "user-1",
+    teacherName:      "Rahul Sharma",
+    rejectionReason:  null,
+    createdAt:        hour(-12),
+  },
+  {
+    id:               "c5",
+    title:            "Periodic Table Overview",
+    subject:          "Chemistry",
+    description:      "Complete periodic table with element properties.",
+    fileUrl:          "https://picsum.photos/seed/chem/800/600",
+    fileType:         "image/jpeg",
+    status:           "pending",
+    startTime:        hour(2),
+    endTime:          hour(6),
+    rotationDuration: 60,
+    teacherId:        "user-1",
+    teacherName:      "Rahul Sharma",
+    rejectionReason:  null,
+    createdAt:        hour(-1),
+  },
+];
+
+
+export const delay = (ms = 600) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
